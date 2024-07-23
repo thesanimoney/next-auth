@@ -1,10 +1,15 @@
 export const publicRoutes = [
-    '/'
+    '/new-verification',
+    '/',
+
 ]
 
 export const authRoutes = [
     '/login',
-    '/register'
+    '/register',
+    '/error',
+    '/reset-password',
+    '/new-password',
 ]
 
 export const apiAuthPrefix = '/api/auth'

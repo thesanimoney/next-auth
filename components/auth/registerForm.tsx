@@ -12,6 +12,7 @@ import FormError from "../formError";
 import FormSuccess from "../formSuccess";
 import {Button} from "../ui/button";
 import {register} from "../../actions/register";
+import {BeatLoader} from "react-spinners";
 
 function RegisterForm() {
     const [isPending, startTransition] = useTransition()
@@ -69,9 +70,12 @@ function RegisterForm() {
                     </div>
                     <FormError message={message.error}/>
                     <FormSuccess message={message.success}/>
-                    <Button disabled={isPending} className={'w-full'} type={'submit'}>Sing Up</Button>
+                    <Button disabled={isPending} className={'w-full'} type={'submit'}>Sing Up
+                      {isPending && <BeatLoader size={7} color={'white'} className={'ml-2'}/>}
+                    </Button>
                 </form>
             </Form>
+
         </CardWrapper>
     </>
 }

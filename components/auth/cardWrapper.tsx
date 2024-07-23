@@ -27,7 +27,7 @@ function CardWrapper({children, headerLabel, backButtonLabel, backButtonHref, sh
             {showSocial && <CardFooter>
                 <Social/>
             </CardFooter>}
-            <CardFooter>
+            <CardFooter className={'flex justify-center'}>
                 <BackButton lable={backButtonLabel} href={backButtonHref}/>
             </CardFooter>
         </Card>

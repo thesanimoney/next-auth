@@ -3,7 +3,7 @@ import {TypographyH2} from "../ui/typographyH2";
 
 interface HeaderProps {
     title: string,
-    lable: string
+    lable?: string
 }
 
 function Header({title, lable}: HeaderProps) {
