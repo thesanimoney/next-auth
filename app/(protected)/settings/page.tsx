@@ -29,13 +29,13 @@ import {
     SelectTrigger,
     SelectValue
 } from "../../../components/ui/select";
-import {Switch} from "../../../components/switch";
 import FormError from "../../../components/formError";
 import FormSuccess from "../../../components/formSuccess";
+import {Switch} from "../../../components/switch";
 
 function SettingsPage() {
     const [isPending, startTransition] = useTransition()
-    const {update, data, status} = useSession()
+    const {update, data} = useSession()
     const [error, setError] = useState<string>()
     const [success, setSuccess] = useState<string>()
 
