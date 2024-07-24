@@ -6,7 +6,7 @@ const getAccountByUserId = async (userId: string) => {
    try {
         return await prisma.account.findFirst({
         where: {
-            id: userId
+            userId: userId
         }
     })
    } catch {

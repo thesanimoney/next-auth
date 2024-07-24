@@ -10,17 +10,12 @@ export const settingsSchema = z.object({
         message: 'Password is required.'
     })),
     newPassword: z.optional(z.string().min(6, {
-        message: 'Password is required.'
+        message: 'New password is required.'
     }))
 })
     .refine((data) => {
-        if (data.password && !data.newPassword) return false
+        return !(data.password && !data.newPassword)
     }, {message: 'New password is required', path: ['newPassword']})
-
-    .refine((data) => {
-        if (data.newPassword && !data.password) return false
-
-    }, {message: 'Password is required', path: ['newPassword']})
 
 export const loginSchema = z.object({
     email: z.string().email({

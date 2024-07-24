@@ -5,12 +5,11 @@ import authConfig from "./auth.config";
 import {getUserById} from "./services/user";
 import {UserRole} from ".prisma/client";
 import getTwoFactorConfirmationByUserId, {deleteTwoFactorConfirmationByUserId} from "./services/twoFactorConfirmation";
-import {session} from "@auth/core/lib/actions";
 import getAccountByUserId from "./lib/acount";
 
 const prisma = new PrismaClient()
 
-export const {handlers, auth, signIn, signOut,} = NextAuth({
+export const {handlers, auth, signIn, signOut, unstable_update} = NextAuth({
     ...authConfig,
     adapter: PrismaAdapter(prisma),
     session: {strategy: "jwt"},
@@ -61,14 +60,17 @@ export const {handlers, auth, signIn, signOut,} = NextAuth({
 
             const user = await getUserById(token.sub)
             if (user) {
-                const existingAccount = await getAccountByUserId(token.sub)
-                token.isOauth = !!existingAccount
+                const existingAccount = await getAccountByUserId(user.id)
+                console.log(existingAccount)
+
+                if (existingAccount) token.isOauth = true
+                if (!existingAccount) token.isOauth = false
                 token.name = user.name
                 token.email = user.email
                 token.role = user.role
                 token.isTwoFactorEnabled = user.isTwoFactorEnabled
             }
-
+            console.log(token)
 
             return token
         }

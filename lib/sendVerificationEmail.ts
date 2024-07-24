@@ -3,6 +3,8 @@ import {Resend} from 'resend';
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const sendVerificationEmail = async (email: string, token: string, url: string) => {
+    const domain = process.env.NEXT_PUBLIC_APP_URL
+
     await resend.emails.send({
         from: 'onboarding@resend.dev',
         to: email,
@@ -43,7 +45,7 @@ export const sendVerificationEmail = async (email: string, token: string, url: s
     <div class="container">
         <h1>Email Confirmation!</h1>
         <p>Thank you for registering in our product.</p>
-        <p>Please confirm email by <a href="http://localhost:3000/${url}/?token=${token}">click here</a>.</p>
+        <p>Please confirm email by <a href="${domain}/${url}/?token=${token}">click here</a>.</p>
     </div>
 </body>
 </html>

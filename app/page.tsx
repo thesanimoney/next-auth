@@ -10,7 +10,7 @@ export default function Home() {
             className={'flex text-white space-y-6 items-center h-full justify-center flex-col background'}>
             <TypographyH1>🔐Auth</TypographyH1>
             <TypographyP>Simple authentication service for learning.</TypographyP>
-            <LoginButton>
+            <LoginButton mode={'modal'} asChild>
                 <Button size='lg'>Sign In</Button>
             </LoginButton>
         </main>

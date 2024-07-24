@@ -4,7 +4,7 @@ import {Card, CardContent, CardHeader} from "../../../components/ui/card";
 import {TypographyH2} from "../../../components/ui/typographyH2";
 import {Button} from "../../../components/ui/button";
 import settings from "../../../actions/settings";
-import {useTransition} from "react";
+import {useState, useTransition} from "react";
 import {BeatLoader} from "react-spinners";
 import {toast} from "sonner";
 import {useSession} from "next-auth/react";
@@ -30,10 +30,17 @@ import {
     SelectValue
 } from "../../../components/ui/select";
 import {Switch} from "../../../components/switch";
+import FormError from "../../../components/formError";
+import FormSuccess from "../../../components/formSuccess";
 
 function SettingsPage() {
     const [isPending, startTransition] = useTransition()
-    const {update, data: {user}} = useSession()
+    const {update, data, status} = useSession()
+    const [error, setError] = useState<string>()
+    const [success, setSuccess] = useState<string>()
+
+    if (!data) return window.location.reload()
+    const user = data.user
 
     const form = useForm<z.infer<typeof settingsSchema>>({
         resolver: zodResolver(settingsSchema),
@@ -41,23 +48,26 @@ function SettingsPage() {
             name: user?.name || undefined,
             isTwoFactorEnabled: user?.isTwoFactorEnabled || undefined,
             role: user?.role || undefined,
-            email: user?.email,
+            email: user?.email || undefined,
             password: undefined,
             newPassword: undefined
         }
     })
 
     const onSettingsChange = (values: z.infer<typeof settingsSchema>) => {
-        console.log(1)
         startTransition(() => {
             settings({...values}).then(res => {
-               if (res.success) {
-                   toast.success(res.success)
-                   update()
-               } else if (res.error) toast.error(res.error)
+                if (res.success) {
+                    setSuccess(res.success)
+                    update()
+                } else if (res.error) setError(res.error)
 
             }).catch(() => toast.error("Something went wrong..."))
         })
+        setTimeout(() => {
+            setSuccess('')
+            setError('')
+        }, 5000)
     }
 
     return <>
@@ -69,7 +79,8 @@ function SettingsPage() {
                 <div
                     className={'flex mt-2 flex-row rounded-md justify-between items-center w-[550px] border p-3 shadow-sm'}>
                     <Form {...form}>
-                        <form className={'flex w-full space-y-6 flex-col'} onSubmit={form.handleSubmit(onSettingsChange)}>
+                        <form className={'flex w-full space-y-6 flex-col'}
+                              onSubmit={form.handleSubmit(onSettingsChange)}>
                             <FormField
                                 control={form.control}
                                 name={'name'}
@@ -82,44 +93,46 @@ function SettingsPage() {
                                         <FormMessage/>
                                     </FormItem>
                                 )}/>
-                            <FormField
-                                control={form.control}
-                                name={'email'}
-                                render={({field}) => (
-                                    <FormItem>
-                                        <FormLabel>Email</FormLabel>
-                                        <FormControl>
-                                            <Input type={'email'} disabled={isPending} {...field} />
-                                        </FormControl>
-                                        <FormMessage/>
-                                    </FormItem>
-                                )}/>
-                            <FormField
-                                control={form.control}
-                                name={'password'}
-                                render={({field}) => (
-                                    <FormItem>
-                                        <FormLabel>Password</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder={'******'} type={'password'}
-                                                   disabled={isPending} {...field} />
-                                        </FormControl>
-                                        <FormMessage/>
-                                    </FormItem>
-                                )}/>
-                            <FormField
-                                control={form.control}
-                                name={'newPassword'}
-                                render={({field}) => (
-                                    <FormItem>
-                                        <FormLabel>New password</FormLabel>
-                                        <FormControl>
-                                            <Input placeholder={'******'} type={'password'}
-                                                   disabled={isPending} {...field} />
-                                        </FormControl>
-                                        <FormMessage/>
-                                    </FormItem>
-                                )}/>
+                            {!user.isOauth && <>
+                                <FormField
+                                    control={form.control}
+                                    name={'email'}
+                                    render={({field}) => (
+                                        <FormItem>
+                                            <FormLabel>Email</FormLabel>
+                                            <FormControl>
+                                                <Input type={'email'} disabled={isPending} {...field} />
+                                            </FormControl>
+                                            <FormMessage/>
+                                        </FormItem>
+                                    )}/>
+                                <FormField
+                                    control={form.control}
+                                    name={'password'}
+                                    render={({field}) => (
+                                        <FormItem>
+                                            <FormLabel>Password</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder={'******'} type={'password'}
+                                                       disabled={isPending} {...field} />
+                                            </FormControl>
+                                            <FormMessage/>
+                                        </FormItem>
+                                    )}/>
+                                <FormField
+                                    control={form.control}
+                                    name={'newPassword'}
+                                    render={({field}) => (
+                                        <FormItem>
+                                            <FormLabel>New password</FormLabel>
+                                            <FormControl>
+                                                <Input placeholder={'******'} type={'password'}
+                                                       disabled={isPending} {...field} />
+                                            </FormControl>
+                                            <FormMessage/>
+                                        </FormItem>
+                                    )}/>
+                            </>}
                             <FormField
                                 control={form.control}
                                 name={'role'}
@@ -146,7 +159,7 @@ function SettingsPage() {
                                         </Select>
                                     </FormItem>
                                 )}/>
-                            <FormField
+                            {!user.isOauth && <FormField
                                 control={form.control}
                                 name={'isTwoFactorEnabled'}
                                 render={({field}) => (
@@ -157,10 +170,13 @@ function SettingsPage() {
                                             <FormDescription>Enable your 2FA authentication</FormDescription>
                                         </div>
                                         <FormControl>
-                                            <Switch disabled={isPending} checked={field.value} onCheckedChange={field.onChange}/>
+                                            <Switch disabled={isPending} checked={field.value}
+                                                    onCheckedChange={field.onChange}/>
                                         </FormControl>
                                     </FormItem>
-                                )}/>
+                                )}/>}
+                            <FormError message={error}/>
+                            <FormSuccess message={success}/>
                             <Button type={'submit'} className={'max-w-[150px]'} size={'sm'} disabled={isPending}>Save
                                 {isPending && <BeatLoader size={7} color={'white'} className={'ml-2'}/>}
                             </Button>
