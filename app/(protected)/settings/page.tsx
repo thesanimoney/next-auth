@@ -39,8 +39,7 @@ function SettingsPage() {
     const [error, setError] = useState<string>()
     const [success, setSuccess] = useState<string>()
 
-    if (!data) return window.location.reload()
-    const user = data.user
+    const user = data?.user
 
     const form = useForm<z.infer<typeof settingsSchema>>({
         resolver: zodResolver(settingsSchema),
@@ -53,6 +52,8 @@ function SettingsPage() {
             newPassword: undefined
         }
     })
+
+    if (!user) return window.location.reload()
 
     const onSettingsChange = (values: z.infer<typeof settingsSchema>) => {
         startTransition(() => {
